@@ -43,20 +43,23 @@ class ABBCodigoPostal:
             father = None
 
             # Llamada a insertar recursivo
-            self._insert(father, puntero, nodocp, "")
+            self._insert(father, puntero, nodocp)
             if not self.isallBalanced():
                 sys.exit("Not Balanced")
 
     # Método de inserción recursiva. Busca el lugar donde encaja el "puntero", entonces inserta y balancea
-    def _insert(self, father, puntero, nodocp, branch):
+    def _insert(self, father, puntero, nodocp):
+        # Parametros:
+        #   fahter: Para identificar el último nodo por el que hemos pasado antes de encontrar el Null donde insertar
+        #   puntero: El nodo del arbol a donde estamos apuntando en ese momento
+        #   nodocp: El nodo que queremos insertar
 
         if puntero is None:             # Si el puntero es None, aquí es donde se debe insertar
-            puntero = nodocp
-            puntero.father = father     # El padre del nuevo elemento es el padre
-            if branch == "left":        # Si es por la izquierda, el hijo izquierdo del padre es el puntero
-                father.left = puntero
+            nodocp.father = father      # El padre del nuevo elemento es el padre
+            if father.cp > nodocp.cp:
+                father.left = nodocp
             else:                       # Si es por la derecha, el hijo derecho del padre es el puntero
-                father.right = puntero
+                father.right = nodocp
             self.size += 1              # El arbol aumenta en uno el tamaño
 
             # Si el abuelo no es None: es decir no está en "top" seguimos subiendo
@@ -65,9 +68,9 @@ class ABBCodigoPostal:
                 father = self.nodereBalance(father.father)
 
         elif puntero.cp > nodocp.cp:                # Seguimos buscando donde insertar recursivamente izquierda
-            self._insert(puntero, puntero.left, nodocp, "left")
+            self._insert(puntero, puntero.left, nodocp)
         elif puntero.cp < nodocp.cp:                # Seguimos buscando donde insertar recursivamente derecha
-            self._insert(puntero, puntero.right, nodocp, "right")
+            self._insert(puntero, puntero.right, nodocp)
         else:
             return
 

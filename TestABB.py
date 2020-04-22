@@ -7,8 +7,8 @@ import time
 # Generación de lista de nodos aleatorios para crear arbol
 #--------------------------------------------------------------------------------
 lista = []
-n = 700
-rd.seed(1)
+n = 1200
+rd.seed(0)
 for i in range(n):
     codigo = rd.randint(0,52900)
     lista.append(codigo)
