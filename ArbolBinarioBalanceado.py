@@ -44,6 +44,8 @@ class ABBCodigoPostal:
 
             # Llamada a insertar recursivo
             self._insert(father, puntero, nodocp)
+
+            # Parada de la ejecución si el arbol no está balanceado. No debería suceder nunca y puede borrarse si se desea.
             if not self.isallBalanced():
                 sys.exit("Not Balanced")
 
@@ -322,7 +324,7 @@ class ABBCodigoPostal:
         return self._height(nodo.left) - self._height(nodo.right)
 
     # Método para comprobar si un nodo concreto del arbol está balanceado en todos sus nodos
-    # Similar al balanceNum pero sólo devolviendo True or False si es menor o igual a 1
+    # Similar al balanceNum pero sólo devolviendo True si es menor o igual a 1 or False
     def isBalanced(self, nodo=None):
 
         if nodo is None:
@@ -384,7 +386,7 @@ class ABBCodigoPostal:
             else:
                 return levelsleft+1
 
-    # Método principal para calcular el tamaño de un arbol
+    # Método principal para calcular el tamaño de un arbol. Debería coincidir con el atributo .size del arbol
     def treesize(self):
 
         puntero = self.top
