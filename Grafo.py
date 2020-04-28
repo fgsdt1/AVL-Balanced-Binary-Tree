@@ -54,7 +54,7 @@ class Grafo():
         return
 
     # Calcula el camino menos costos (más corto) para ir de un punto a todos los demás verices usando el agoritmo Dijkstra
-    def shortestGrid (self, verticede):
+    def shortestMap (self, verticede):
 
         # Creamos un diccionario de vertices (tablaVertices) con doble valor:
         #       El tamaño del camino (inicializado a infinito) y el camino optimo para llegar ("")
@@ -101,8 +101,59 @@ class Grafo():
     # Calcula el camino menos costos (más corto) para ir de un punto a otro concreto usando el agoritmo Dijkstra
     def shortestPath (self, verticede, verticea):
 
-        tablaVertices = self.shortestGrid(verticede)
+        tablaVertices = self.shortestMap(verticede)
         return tablaVertices[verticea]
+
+    # Se implementa un algoritmo "Depth First Traversal" para recorrer el grafo completo
+    # Método principal
+    def dfsRoute (self, verticede=""):
+
+        # Si no se envía el vertice origen se considera el primero incluido en el diccionario
+        if verticede=="": verticede = list(self.listaVertices.keys())[0]
+
+        #Se crea una pila de vertices recorridos y se le incorpora el primer valor
+        recorridos = []
+        recorridos.append (verticede)
+        # se llama a algoritmo recursivo dfs para crear el camino
+        path = self._dfsRoute (verticede, recorridos)
+
+        return path
+
+    # Método iterativo de la implementación del algoritmo "Depth First Traversal", complemento de "dfsRoute"
+    def _dfsRoute (self, vertice, recorridos):
+
+        path = vertice
+        for ari in self.listaVertices[vertice].aristas.keys():
+            if ari not in recorridos:
+                recorridos.append(ari)
+                path = path + self._dfsRoute(ari, recorridos)
+
+        return path
+
+    # Generación de grafo a partir de una matriz de doble entrada con distanicas/ponderaciones
+    # y una lista con los nombres de los nodos
+    def matrixintoGraph (self, matriz, listanodos):
+        #
+        # Si es el propio nodo, la distancia en la matriz ha de ser 0
+        # Si no hay conexión entre los nodos, la distancia ha de ser math.inf
+        #
+        # Ejemplo:
+        #       N=math.inf
+        #       vertices = ["A", "B", "C", "D"]
+        #       matriz = [[0,1,3,N],
+        #                 [1,0,N,2],
+        #                 [3,N,0,1],
+        #                 [N,2,1,0]]
+
+        for i in range(len(listanodos)):
+            self.addVertice(str(listanodos[i])) # Se convierte a string por si acaso se envía el nombre del nodo como número
+
+        for row in range(len(matriz)):
+            for col in range(len(matriz[row])):
+                if 0 < matriz[row][col] < math.inf:
+                    self.addArista(listanodos[row], listanodos[col], matriz[row][col])
+
+        return
 
     def __str__(self):
 
