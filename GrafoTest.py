@@ -37,14 +37,13 @@ print(myGrafo.dfsRoute("C"))
 # Prueba creación desde matriz
 # -------------------------------
 
-print(myGrafo)
 
 myGrafo = Grafo.Grafo()
 N=math.inf
 vertices = ["A", "B", "C", "D", "E"]
 matriz = [[0,1,3,N,3],
           [N,0,N,2,2],
-          [3,N,0,1,N],
+          [N,N,0,1,N],
           [N,2,1,0,N],
           [N,2,N,N,0]]
 
@@ -53,5 +52,6 @@ myGrafo.matrixintoGraph(matriz, vertices)
 print(myGrafo)
 
 print(myGrafo.shortestMap("B"))
+print(myGrafo.shortestPath("A", "E"))
 print(myGrafo.shortestPath("E", "A"))
-print(myGrafo.shortestPath("B", "E"))
+print(myGrafo.shortestPath("C", "E"))
