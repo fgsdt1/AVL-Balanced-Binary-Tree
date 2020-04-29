@@ -40,18 +40,48 @@ print(myGrafo.dfsRoute("C"))
 
 myGrafo = Grafo.Grafo()
 N=math.inf
-vertices = ["A", "B", "C", "D", "E"]
-matriz = [[0,1,3,N,3],
-          [N,0,N,2,2],
-          [N,N,0,1,N],
-          [N,2,1,0,N],
-          [N,2,N,N,0]]
+vertices = ["1", "2", "3", "4", "5", "6", "7"]
+matriz = [[0,8,1,N,N,N,N],
+          [8,0,5,2,N,N,N],
+          [1,5,0,7,5,N,N],
+          [N,2,7,0,N,N,N],
+          [N,N,5,N,0,9,3],
+          [N,N,N,N,9,0,N],
+          [N,N,N,N,3,N,0]]
 
 myGrafo.matrixintoGraph(matriz, vertices)
 
 print(myGrafo)
 
-print(myGrafo.shortestMap("B"))
-print(myGrafo.shortestPath("A", "E"))
-print(myGrafo.shortestPath("E", "A"))
-print(myGrafo.shortestPath("C", "E"))
+print(myGrafo.shortestMap("2"))
+print(myGrafo.shortestPath("1", "5"))
+print(myGrafo.shortestPath("3", "1"))
+print(myGrafo.shortestPath("3", "7"))
+
+
+# -------------------------------
+# Prueba creación desde matriz 2
+# -------------------------------
+
+
+myGrafo = Grafo.Grafo()
+N=math.inf
+vertices = ["A", "B", "C", "D", "E", "F", "G", "H"]
+matriz = [[ 0, 7,10, 4, N, N, N, N],
+          [ N, 0, 6, N, 5, N, N, N],
+          [10, 6, 0,14, N,12, N, N],
+          [ 4, N,14, 0, N, N, 1, N],
+          [ N, 5, N, N, 0, 8, N,20],
+          [ N, N,12, N, 8, 0,18, 9],
+          [ N, N, N, 1, N,18, 0,26],
+          [ N, N, N, N,20, 9,26, 0]]
+
+myGrafo.matrixintoGraph(matriz, vertices)
+
+print(myGrafo)
+
+print(myGrafo.shortestMap("A"))
+print(myGrafo.shortestPath("B", "F"))
+print("A->H", myGrafo.shortestPath("A", "H"))
+print("H->A", myGrafo.shortestPath("H", "A"))
+print(myGrafo.shortestPath("F", "C"))
