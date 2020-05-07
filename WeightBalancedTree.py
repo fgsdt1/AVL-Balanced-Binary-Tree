@@ -34,6 +34,7 @@ class WBTree:
 
         self.top = None
         self.size = 0
+        self.weight = 0
 
     # ------------------------------------------------------------------------------------------------------------------
     # Basic tree insert method (calls the recursive one)
@@ -42,6 +43,7 @@ class WBTree:
         if self.top is None:        # If it is the first element in the tree
             self.top = node
             self.size += 1
+            self.weight += 1
         else:
             pointer = self.top      # We go trough the tree nodes with "pointer" to locate where to insert. Starting at top.
             father = None
@@ -65,13 +67,17 @@ class WBTree:
                 father.left = node
             else:                                   # else, it will be the right son
                 father.right = node
-            self.size += node.weight                    # The size of the tree increases by the weight of the node
-        elif pointer.value > pointer.value:             # Keep searching where to insert recursively in the left
+            self.weight += node.weight              # The weight of the tree increases by the weight of the node
+            self.size += 1                          # The size of the tree increases by 1
+        elif pointer.value > node.value:             # Keep searching where to insert recursively in the left
             self._insert(pointer, pointer.left, node)
         elif pointer.value < node.value:                # Keep searching where to insert recursively in the left
             self._insert(pointer, pointer.right, node)
         else:
-            return
+            pointer.weight += node.weight           # The weight of tree and node increases by the weight of the node
+            self.weight += node.weight
+
+        return
 
     # ------------------------------------------------------------------------------------------------------------------
     # Basic tree search method by value. Calls the recursive method
@@ -137,6 +143,71 @@ class WBTree:
             return 1
 
         return 1
+
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # Calculates the total weight of a node and all its branches together with the number of nodes (Size) and height
+    def branchweight(self, node):
+
+        branch = {}
+
+        if node is not None:
+
+            branch["weight"] = node.weight
+            branch["size"] = 1
+            branch["height"] = 1
+
+            branchleft = self.branchweight(node.left)
+            branchright = self.branchweight(node.right)
+            branch["weight"] += (branchleft["weight"] + branchright["weight"])
+            branch["size"] += (branchleft["size"] + branchright["size"])
+
+            if branchleft["height"] >= branchright["height"]:
+                branch["height"]+=branchleft["height"]
+            else:
+                branch["height"]+=branchright["height"]
+
+        else:
+            branch["weight"] = 0
+            branch["size"] = 0
+            branch["height"] = 0
+
+        return branch
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # Calculates the expected length of search (ELS) to all the nodes depending on the weight
+    # ELS = depth(node1)*probability(node1) + depth(node2)*probability(node2) + .... + depth (noden)*probability(noden)
+    # It is obtained by adding probability of a node times the depth of the node for all the nodes.
+    # The probabililty is the weight of the node / weight of the tree (the node and its branches)
+    def branchels(self, node=None):
+
+        if node is None: node = self.top
+        depth = 1
+
+        branchweight = self.branchweight(node)["weight"]
+        els = (node.weight/branchweight) * depth
+
+        els += self._branchels(node.right, depth, branchweight)
+        els += self._branchels(node.left, depth, branchweight)
+
+        return els
+
+    def _branchels(self, node, depth, branchweight):
+
+        depth += 1
+
+        if node is not None:
+
+            els = (node.weight / branchweight) * depth
+
+            els += self._branchels(node.right, depth, branchweight)
+            els += self._branchels(node.left, depth, branchweight)
+
+            return els
+
+        else:
+
+            return 0
 
     # Método principal para calcular el siguiente nodo dentro de un arbol (que será el más bajo de los mayores)
     def findlowesthigh(self, nodo):
@@ -368,19 +439,19 @@ class WBTree:
             impresion += self.___str___(puntero.right, nivel + 1, "right")
 
             # Se incluye un campo aviso como comprobación si una rama no estuviese balanceada
-            if self.isBalanced(puntero) == False:
-                aviso = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-            else:
-                aviso = "ok"
+            #if self.isBalanced(puntero) == False:
+            #    aviso = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            #else:
+            aviso = "ok"
 
             if leftright == "left":
-                impresion += "\t"*2*(nivel) + str(nivel) + "\\" + str(puntero.value) + aviso + str(self._height(puntero.left)) + str(self._height(puntero.right)) + "\n"
+                impresion += "\t"*2*(nivel) + str(nivel) + "\\" + str(puntero.value) + aviso + str(puntero.weight) + "\n"
 
             elif leftright == "right":
-                impresion += "\t"*2*(nivel) + str(nivel) + "/" + str(puntero.value) + aviso + str(self._height(puntero.left)) + str(self._height(puntero.right)) + "\n"
+                impresion += "\t"*2*(nivel) + str(nivel) + "/" + str(puntero.value) + aviso + str(puntero.weight) + "\n"
 
             else:
-                impresion += "\t"*2*(nivel) + str(nivel) + str(puntero.value) + aviso + str(self._height(puntero.left)) + str(self._height(puntero.right)) + "\n"
+                impresion += "\t"*2*(nivel) + str(nivel) + str(puntero.value) + aviso + str(puntero.weight) + "\n"
 
             impresion += self.___str___(puntero.left, nivel+1, "left")
             return impresion
