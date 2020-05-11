@@ -1,4 +1,4 @@
-import sys
+
 #-------------
 # Clase del nodo con el código postal
 #-------------
@@ -29,8 +29,8 @@ class ABBCodigoPostal:
 
     def __init__(self):
 
-        self.top = CodigoPostal(28760)
-        self.size = 1
+        self.top = None
+        self.size = 0
 
     # Método de inserción básica en el arbol
     def insert(self, nodocp):
@@ -44,10 +44,6 @@ class ABBCodigoPostal:
 
             # Llamada a insertar recursivo
             self._insert(father, puntero, nodocp)
-
-            # Parada de la ejecución si el arbol no está balanceado. No debería suceder nunca y puede borrarse si se desea.
-            if not self.isallBalanced():
-                sys.exit("Not Balanced")
 
     # Método de inserción recursiva. Busca el lugar donde encaja el "puntero", entonces inserta y balancea
     def _insert(self, father, puntero, nodocp):
@@ -78,14 +74,13 @@ class ABBCodigoPostal:
 
     # Metodo principal para encontrar nodo por cp
     def findnode (self, cp):
-        if self.top.cp == cp:
-            return self.top
-        else:
-            return self._findnode(cp, self.top)
+
+        return self._findnode(cp, self.top)
 
 
     # Metodo recursivo para encontrar nodo por cp
     def _findnode(self, cp, nodo):
+
         if nodo is None:
             return None
         if nodo.cp == cp:
@@ -103,7 +98,7 @@ class ABBCodigoPostal:
         if nodo is None:
             return 0
 
-        if self._height(nodo) == 1:                             # Si el nodo a eliminar no tiene hijos
+        if nodo.right is None and nodo.left is None:                             # Si el nodo a eliminar no tiene hijos
             if nodo.father.right == nodo:                       # según de donde venga el padre se le asigna None
                 nodo.father.right = None
             elif nodo.father.left == nodo:
@@ -264,6 +259,45 @@ class ABBCodigoPostal:
 
 
 
+    # BORRAR NO NECESARIO------------------------------------------------------------------------------------------------------------------
+    # Calculates the expected length of search (ELS) to all the nodes depending on the weight. The lower the better.
+    # ELS = depth(node1)*probability(node1) + depth(node2)*probability(node2) + .... + depth (noden)*probability(noden)
+    # It is obtained by adding probability of a node times the depth of the node for all the nodes.
+    # The probabililty is the weight of the node / weight of the tree (the node and its branches)
+    def branchels(self, node=None):
+
+        if node is None: node = self.top
+        depth = 1
+
+        els = (1/self.treesize()) * depth
+
+        els += self._branchels(node.right, depth, self.treesize())
+        els += self._branchels(node.left, depth, self.treesize())
+
+        return els
+
+    # BORRAR NO NECESARIO------------------------------------------------------------------------------------------------------------------
+    # Recursive call for the ELS calculation
+    def _branchels(self, node, depth, treesize):
+
+        depth += 1
+
+        if node is not None:
+
+            els = (1 / treesize) * depth
+
+            els += self._branchels(node.right, depth, treesize)
+            els += self._branchels(node.left, depth, treesize)
+
+            return els
+
+        else:
+
+            return 0
+
+
+
+
     # Método para rotar el arbol cuando no está balanceado
     def rotate(self, nodo, rotation):
 
@@ -364,6 +398,15 @@ class ABBCodigoPostal:
 
         return resultado
 
+    # Metodo recursivo para calcular la profundidad
+    def depth(self, nodo):
+
+        if nodo.father is not None:
+            depth = self.depth(nodo.father)
+            depth += 1
+            return depth
+        else:
+            return 0
 
     # Método principal para calcular la altura de un arbol
     def height(self):

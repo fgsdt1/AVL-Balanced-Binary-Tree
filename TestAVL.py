@@ -1,5 +1,5 @@
 
-import ArbolBinarioBalanceado as abb
+import BinaryBalanceTreeAVL as avl
 import random as rd
 import time
 
@@ -17,10 +17,10 @@ for i in range(n):
 # Creación del arbol con control tiempo
 #--------------------------------------------------------------------------------
 starttime = time.time()
-miarbol = abb.ABBCodigoPostal()
+miarbol = avl.ABBCodigoPostal()
 
 for i in range(len(lista)):
-    nodocp = abb.CodigoPostal(lista[i])
+    nodocp = avl.CodigoPostal(lista[i])
     miarbol.insert(nodocp)
 
 print("this is the last-------------------------")
@@ -44,7 +44,7 @@ borrar.append(28760)
 nb = 29550
 for i in range(nb):
     rand = rd.randint(0, 52000)
-    #if miarbol.findnode(rand) is not None:
+    #if mytree.findnode(rand) is not None:
     borrar.append(rand)
 
 

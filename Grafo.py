@@ -53,7 +53,7 @@ class Grafo():
 
         return
 
-    # Calcula el camino menos costos (más corto) para ir de un punto a todos los demás verices usando el agoritmo Dijkstra
+    # Calcula el camino menos costoso (más corto) para ir de un punto a todos los demás verices usando el agoritmo Dijkstra
     def shortestMap (self, verticede):
 
         # Creamos un diccionario de vertices (tablaVertices) con doble valor:
