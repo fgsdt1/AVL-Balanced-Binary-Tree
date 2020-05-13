@@ -34,11 +34,11 @@ for i in range(n):
 # AVL and WBT Tree Creation... with time performance check for AVL
 # --------------------------------------------------------------------------------
 mytree = ubt.WBTree()
-mytreeAVL = avl.ABBCodigoPostal()
+mytreeAVL = avl.AVLTree()
 
 listanodos=[]
 for i in range(len(lista)):
-    listanodos.append(avl.CodigoPostal(lista[i]))
+    listanodos.append(avl.AVLNode(lista[i]))
 
 cProfile.run("testinsertAVL(listanodos, mytreeAVL)")
 

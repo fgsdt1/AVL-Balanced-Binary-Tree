@@ -17,10 +17,10 @@ for i in range(n):
 # Creación del arbol con control tiempo
 #--------------------------------------------------------------------------------
 starttime = time.time()
-miarbol = avl.ABBCodigoPostal()
+miarbol = avl.AVLTree()
 
 for i in range(len(lista)):
-    nodocp = avl.CodigoPostal(lista[i])
+    nodocp = avl.AVLNode(lista[i])
     miarbol.insert(nodocp)
 
 print("this is the last-------------------------")

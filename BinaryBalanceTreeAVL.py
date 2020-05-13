@@ -2,21 +2,21 @@
 #-------------
 # Clase del nodo con el código postal
 #-------------
-class CodigoPostal:
+class AVLNode:
 
-    def __init__(self, cp):
+    def __init__(self, value):
 
         self.father = None
         self.left = None
         self.right = None
-        self.cp = cp
+        self.value = value
 
     def __str__(self):
 
         if self.father is not None:
-            imprimir = "nodo:" + str (self.cp) + ", father:" + str(self.father.cp)
+            imprimir = "nodo:" + str (self.value) + ", father:" + str(self.father.value)
         else:
-            imprimir = "nodo:" + str(self.cp) + "- Es el top"
+            imprimir = "nodo:" + str(self.value) + "- Es el top"
 
         return imprimir
 
@@ -25,7 +25,7 @@ class CodigoPostal:
 # Info de referencia: https://www.cpp.edu/~ftang/courses/CS241/notes/self%20balance%20bst.htm
 # Info de referencia: https://towardsdatascience.com/self-balancing-binary-search-trees-101-fc4f51199e1d
 #-------------
-class ABBCodigoPostal:
+class AVLTree:
 
     def __init__(self):
 
@@ -54,7 +54,7 @@ class ABBCodigoPostal:
 
         if puntero is None:             # Si el puntero es None, aquí es donde se debe insertar
             nodocp.father = father      # El padre del nuevo elemento es el padre
-            if father.cp > nodocp.cp:
+            if father.value > nodocp.value:
                 father.left = nodocp
             else:                       # Si es por la derecha, el hijo derecho del padre es el puntero
                 father.right = nodocp
@@ -65,30 +65,30 @@ class ABBCodigoPostal:
                 # Hacemos un balanceo a partir del abuelo del nodo hacia arriba
                 father = self.nodereBalance(father.father)
 
-        elif puntero.cp > nodocp.cp:                # Seguimos buscando donde insertar recursivamente izquierda
+        elif puntero.value > nodocp.value:                # Seguimos buscando donde insertar recursivamente izquierda
             self._insert(puntero, puntero.left, nodocp)
-        elif puntero.cp < nodocp.cp:                # Seguimos buscando donde insertar recursivamente derecha
+        elif puntero.value < nodocp.value:                # Seguimos buscando donde insertar recursivamente derecha
             self._insert(puntero, puntero.right, nodocp)
         else:
             return
 
-    # Metodo principal para encontrar nodo por cp
+    # Metodo principal para encontrar nodo por value
     def findnode (self, cp):
 
         return self._findnode(cp, self.top)
 
 
-    # Metodo recursivo para encontrar nodo por cp
-    def _findnode(self, cp, nodo):
+    # Metodo recursivo para encontrar nodo por value
+    def _findnode(self, value, nodo):
 
         if nodo is None:
             return None
-        if nodo.cp == cp:
+        if nodo.value == value:
             return nodo
-        elif nodo.cp > cp:
-            return self._findnode(cp, nodo.left)
-        elif nodo.cp < cp:
-            return self._findnode(cp, nodo.right)
+        elif nodo.value > value:
+            return self._findnode(value, nodo.left)
+        elif nodo.value < value:
+            return self._findnode(value, nodo.right)
         else:
             return None
 
@@ -432,13 +432,13 @@ class ABBCodigoPostal:
                 aviso = "ok"
 
             if leftright == "left":
-                impresion += "\t"*2*(nivel) + str(nivel) + "\\" + str(puntero.cp) + aviso + str(self._height(puntero.left)) + str(self._height(puntero.right)) + "\n"
+                impresion += "\t"*2*(nivel) + str(nivel) + "\\" + str(puntero.value) + aviso + str(self._height(puntero.left)) + str(self._height(puntero.right)) + "\n"
 
             elif leftright == "right":
-                impresion += "\t"*2*(nivel) + str(nivel) + "/" + str(puntero.cp) + aviso + str(self._height(puntero.left)) + str(self._height(puntero.right)) + "\n"
+                impresion += "\t"*2*(nivel) + str(nivel) + "/" + str(puntero.value) + aviso + str(self._height(puntero.left)) + str(self._height(puntero.right)) + "\n"
 
             else:
-                impresion += "\t"*2*(nivel) + str(nivel) + str(puntero.cp) + aviso + str(self._height(puntero.left)) + str(self._height(puntero.right)) + "\n"
+                impresion += "\t"*2*(nivel) + str(nivel) + str(puntero.value) + aviso + str(self._height(puntero.left)) + str(self._height(puntero.right)) + "\n"
 
             impresion += self.___str___(puntero.left, nivel+1, "left")
             return impresion
