@@ -114,7 +114,7 @@ class WBTree:
                 node.father.right = None
             elif node.father.left == node:
                 node.father.left = None
-            self.size -= node.weight                    # The weight of the node is subtracted from the total
+            self.size -= 1
 
         elif node.right is None:                        # if the node to delete has children, but only by the left
             if node.father is None:                     # if the node to delete is the root
@@ -126,7 +126,7 @@ class WBTree:
             elif node.father.left == node:
                 node.father.left = node.left
                 node.left.father = node.father
-            self.size -= node.weight                    # The weight of the node is subtracted  from the total
+            self.size -= 1
 
         elif node.left is None:                         # if the node to delete has children, but only by the right
             if node.father is None:                     # if the node to delete is the root
@@ -138,10 +138,37 @@ class WBTree:
             elif node.father.left == node:
                 node.father.left = node.right
                 node.right.father = node.father
-            self.size -= node.weight                    # The weight of the node is subtracted  from the total
+            self.size -= 1
         else:
-# Pendiente____________________
-            return 1
+
+
+# Pendiente comprobar____________________
+
+            previous = self.findprevious(node.left)
+            next = self.findnext(node.right)
+
+            depthprevious = self.depth(previous)
+            depthnext = self.depth(next)
+
+            treeweight = self.treeweight()
+            elsprevious = (previous.weight / treeweight) * depthprevious
+            elsnext = (next.weight / treeweight) * depthnext
+
+            if elsnext >= elsprevious:
+
+                node.value = next.value
+                node.weight = next.weight
+
+                self.delete(next)
+
+            else:
+
+                node.value = previous.value
+                node.weight = previous.weight
+
+                self.delete(previous)
+
+# Pendiente comprobar____________________
 
         return 1
 
@@ -194,10 +221,13 @@ class WBTree:
 
     # ------------------------------------------------------------------------------------------------------------------
     # Rebalance the tree
-    def rebalance(self):
+    def rebalance(self, adjust=True):
 
         treelist = self.treetolist()
         self.listtotree(treelist)
+
+        if adjust:
+            self.nodeadjust(self.top)
 
     # ------------------------------------------------------------------------------------------------------------------
     # Create a list from the tree to rebalance it later
@@ -257,6 +287,97 @@ class WBTree:
                 break
 
         return node
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # recursive method to adjust nodes if possible, comparing each node with the previous or next one
+    # to see if switching places improves the ELS.
+    def nodeadjust(self, pointer):
+
+        if pointer is not None and (pointer.left is not None or pointer.right is not None):
+            # We look for the previous and next node to see if it is worth to swap
+
+            depthpointer = self.depth(pointer)
+            treeweight = self.treeweight()
+
+            if pointer.left is not None:
+                previous = self.findprevious(pointer.left)
+                depthprevious = self.depth(previous)
+                elsprevious = (previous.weight / treeweight) * depthprevious
+            else:
+                previous = None
+                depthprevious = depthpointer
+                elsprevious = 0
+
+            if pointer.right is not None:
+                next = self.findnext(pointer.right)
+                depthnext = self.depth(next)
+                elsnext = (next.weight / treeweight) * depthnext
+            else:
+                next = None
+                depthnext = depthpointer
+                elsnext = 0
+
+            if elsnext >= elsprevious:
+                # The improvement is the weight of the node to "upgrade" times the levels upgraded
+                # plus the addition of the weights of the right branch, that will go up one level
+                improvement = next.weight*(depthnext-depthpointer) + self._treeweight(next.right)
+
+                if improvement > pointer.weight*(depthprevious-depthpointer+1):
+
+                    newnode = WBTNode(pointer.value, pointer.weight)
+
+                    pointer.value = next.value
+                    pointer.weight = next.weight
+
+                    if previous is not None:
+                        previous.right = newnode
+                        previous.right.father = previous
+                    else:
+                        pointer.left = newnode
+                        pointer.left.father = pointer
+
+                    self.delete(next)
+
+
+            elif elsprevious > elsnext:
+                # The improvement is the weight of the node to "upgrade" times the levels upgraded
+                # plus the addition of the weights of the left branch, that will go up one level
+                improvement = previous.weight*(depthprevious-depthpointer) + self._treeweight(previous.left)
+
+                if improvement > pointer.weight*(depthnext - depthpointer + 1):
+
+                    newnode = WBTNode(pointer.value, pointer.weight)
+
+                    pointer.value = previous.value
+                    pointer.weight = previous.weight
+
+                    if next is not None:
+                        next.left = newnode
+                        next.left.father = next
+                    else:
+                        pointer.right = newnode
+                        pointer.right.father = pointer
+
+                    self.delete(previous)
+
+            self.nodeadjust(pointer.left)
+            self.nodeadjust(pointer.right)
+
+    # Método recursivo para calcular el siguiente nodo dentro de un arbol (que será el más bajo de los mayores)
+    def findnext(self, nodo):
+
+        if nodo.left is not None:
+            return self.findnext(nodo.left)
+        else:
+            return nodo
+
+    # Método recursivo para calcular el nodo anterior dentro de un arbol (que será el más alto de los menores)
+    def findprevious(self, nodo):
+
+        if nodo.right is not None:
+            return self.findprevious(nodo.right)
+        else:
+            return nodo
 
     # ------------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------

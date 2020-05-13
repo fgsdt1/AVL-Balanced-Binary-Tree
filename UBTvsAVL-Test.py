@@ -1,5 +1,5 @@
 import BinaryBalanceTreeAVL as avl
-import WeightBalancedTree as ubt
+import UsageBalancedTree as ubt
 import random as rd
 import cProfile
 
@@ -103,8 +103,9 @@ for i in range(len(listatest)):
     depabbtmp = mytreeAVL.depth(nodo)
     depavl += depabbtmp
 
-print ("Cumulative heights WBT", dep)
 print ("Cumulative heights AVL", depavl)
+print ("Cumulative heights WBT", dep)
+
 
 # Final bulk find execition for performance test
 cProfile.run("findtest(listatest,mytree)")

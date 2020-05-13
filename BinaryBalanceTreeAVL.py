@@ -406,7 +406,7 @@ class ABBCodigoPostal:
             depth += 1
             return depth
         else:
-            return 0
+            return 1
 
     # Método principal para calcular la altura de un arbol
     def height(self):
