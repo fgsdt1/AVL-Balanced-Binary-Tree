@@ -9,7 +9,7 @@ print ("Insert Test --------------------")
 #--------------------------------------------------------------------------------
 lista = []
 n = 1200
-rd.seed(0)
+rd.seed(10)
 for i in range(n):
     value = rd.randint(0,52900)
     lista.append(value)
@@ -43,7 +43,7 @@ todelete = []
 todelete.append(28760)
 nb = 29550
 for i in range(nb):
-    rand = rd.randint(0, 52000)
+    rand = rd.randint(0, 52900)
     todelete.append(rand)
 
 notexisting=0

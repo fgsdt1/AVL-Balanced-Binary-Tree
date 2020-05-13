@@ -12,10 +12,6 @@ class UBTNode:
         self.value = value
         self.weight = weight
 
-    def copynode(self):
-
-        return UBTNode(self.value, self.weight, self.father, self.left, self.right)
-
     def __str__(self):
 
         if self.father is not None:
@@ -515,20 +511,14 @@ class UBTree:
             impresion =""
             impresion += self.___str___(puntero.right, nivel + 1, "right")
 
-            # Se incluye un campo aviso como comprobación si una rama no estuviese balanceada
-            #if self.isBalanced(puntero) == False:
-            #    aviso = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-            #else:
-            aviso = "ok"
-
             if leftright == "left":
-                impresion += "\t"*2*(nivel) + str(nivel) + "\\" + str(puntero.value) + aviso + str(puntero.weight) + "\n"
+                impresion += "\t"*2*(nivel) + str(nivel) + "\\" + str(puntero.value) + "-" + str(puntero.weight) + "\n"
 
             elif leftright == "right":
-                impresion += "\t"*2*(nivel) + str(nivel) + "/" + str(puntero.value) + aviso + str(puntero.weight) + "\n"
+                impresion += "\t"*2*(nivel) + str(nivel) + "/" + str(puntero.value) + "-" + str(puntero.weight) + "\n"
 
             else:
-                impresion += "\t"*2*(nivel) + str(nivel) + str(puntero.value) + aviso + str(puntero.weight) + "\n"
+                impresion += "\t"*2*(nivel) + str(nivel) + "|->" + str(puntero.value) + "-" + str(puntero.weight) + "\n"
 
             impresion += self.___str___(puntero.left, nivel+1, "left")
             return impresion

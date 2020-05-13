@@ -1,7 +1,7 @@
 
-#-------------
+#----------------------------------------------------------------------------------------------------------------------
 # Node for the AVL Tree. Value is the key
-#-------------
+#----------------------------------------------------------------------------------------------------------------------
 class AVLNode:
 
     def __init__(self, value):
@@ -20,11 +20,9 @@ class AVLNode:
 
         return imprimir
 
-#-------------
-# Clase del arbol binario balanceado de nodos con el código postal. Balanceado automático en insert y delete
-# Info de referencia: https://www.cpp.edu/~ftang/courses/CS241/notes/self%20balance%20bst.htm
-# Info de referencia: https://towardsdatascience.com/self-balancing-binary-search-trees-101-fc4f51199e1d
-#-------------
+#----------------------------------------------------------------------------------------------------------------------
+# AVL Balanced Tree Class. Self balanced at insert and delete
+#----------------------------------------------------------------------------------------------------------------------
 class AVLTree:
 
     def __init__(self):
@@ -32,273 +30,277 @@ class AVLTree:
         self.top = None
         self.size = 0
 
-    # Método de inserción básica en el arbol
+    # ------------------------------------------------------------------------------------------------------------------
+    # Basic insert method. First call
     def insert(self, nodocp):
 
-        if self.top is None:        # Si es el primer elemento simplemente lo añadimos
+        if self.top is None:        # If it is the first element we insert it at the top (root)
             self.top = nodocp
             self.size += 1
         else:
-            pointer = self.top      # Recorremos el arbol con "puntero" para localizar donde insertar. Empezando en top.
+            pointer = self.top      # We go trhough the tree with "pointer" to find the position to insert. Starting at root.
             father = None
 
-            # Llamada a insertar recursivo
+            # recursive insert call
             self._insert(father, pointer, nodocp)
 
-    # Método de inserción recursiva. Busca el lugar donde encaja el "puntero", entonces inserta y balancea
+    # Recursive insert method. Using pointer, it looks for the location where node value fits. Then inserts and balances
     def _insert(self, father, pointer, nodocp):
-        # Parametros:
-        #   fahter: Para identificar el último nodo por el que hemos pasado antes de encontrar el Null donde insertar
-        #   pointer: El nodo del arbol a donde estamos apuntando en ese momento
-        #   nodocp: El nodo que queremos insertar
+        # Params:
+        #   fahter: To identify the last visited node before finding the "None" where to insert
+        #   pointer: The tree node we are working with at this recursive call
+        #   nodocp: The node we want to insert
 
-        if pointer is None:             # Si el pointer es None, aquí es donde se debe insertar
-            nodocp.father = father      # El padre del nuevo elemento es el padre
+        if pointer is None:             # If the pointer is None, here we have to insert
+            nodocp.father = father      # The parent of the new element is the father node
             if father.value > nodocp.value:
                 father.left = nodocp
-            else:                       # Si es por la derecha, el hijo derecho del padre es el pointer
+            else:
                 father.right = nodocp
-            self.size += 1              # El arbol aumenta en uno el tamaño
+            self.size += 1              # Tree size increases by one
 
-            # Si el abuelo no es None: es decir no está en "top" seguimos subiendo
+            # For the balancing, we go down-top until the grandfather (father.father) is None, meaning we are at top
             while father.father is not None:
-                # Hacemos un balanceo a partir del abuelo del nodo hacia arriba
+                # We balance with the grandfather as the node to do the calculations
                 father = self.nodereBalance(father.father)
 
-        elif pointer.value > nodocp.value:                # Seguimos buscando donde insertar recursivamente izquierda
+        elif pointer.value > nodocp.value:                # We keep looking down the left branch if it is smaller
             self._insert(pointer, pointer.left, nodocp)
-        elif pointer.value < nodocp.value:                # Seguimos buscando donde insertar recursivamente derecha
+        elif pointer.value < nodocp.value:                # We keep looking down the right branch if it is bigger
             self._insert(pointer, pointer.right, nodocp)
         else:
             return
 
-    # Metodo principal para encontrar nodo por value
+    # ------------------------------------------------------------------------------------------------------------------
+    # Main method for value find. We receive the key and return the node object (or None if it does not exist)
     def findnode (self, cp):
 
-        return self._findnode(cp, self.top)
+        return self._findnode(cp, self.top)    # Call to the recursive method
 
+    # Find recursive method
+    def _findnode(self, value, node):
 
-    # Metodo recursivo para encontrar nodo por value
-    def _findnode(self, value, nodo):
-
-        if nodo is None:
+        if node is None:
             return None
-        if nodo.value == value:
-            return nodo
-        elif nodo.value > value:
-            return self._findnode(value, nodo.left)
-        elif nodo.value < value:
-            return self._findnode(value, nodo.right)
+        if node.value == value:
+            return node
+        elif node.value > value:
+            return self._findnode(value, node.left)
+        elif node.value < value:
+            return self._findnode(value, node.right)
         else:
             return None
 
-    # Método de borrado
-    def delete(self, nodo):
+    # ------------------------------------------------------------------------------------------------------------------
+    # Delete method. It receives the node to delete (not the key value)
+    def delete(self, node):
 
-        if nodo is None:
+        if node is None:
             return 0
 
-        if nodo.right is None and nodo.left is None:                             # Si el nodo a eliminar no tiene hijos
-            if nodo.father.right == nodo:                       # según de donde venga el padre se le asigna None
-                nodo.father.right = None
-            elif nodo.father.left == nodo:
-                nodo.father.left = None
-            self.size -= 1                                    # Se resta uno al tamaño del arbol
+        if node.right is None and node.left is None:            # When the node is a leaf (no children)
+            if node.father.right == node:                       # The parent is assigned None right or left, depending
+                node.father.right = None
+            elif node.father.left == node:
+                node.father.left = None
+            self.size -= 1                                      # Tree size minus one
 
-            # Si el padre del nodo eliminado no es None: es decir no está en "top" seguimos subiendo
-            while nodo.father is not None:
-                # Hacemos un balanceo a partir del padre del nodo eliminado hacia arriba
-                nodo = self.nodereBalance(nodo.father)
+            # We rebalance down-top until the father of the node is None (root)
+            while node.father is not None:
+                # The balancing is made starting on the father of the node recently deleted
+                node = self.nodereBalance(node.father)
 
-        elif nodo.right is None:                                # Si el nodo a eliminar tiene hijos pero solo por la izq
-            if nodo.father is None:                             # Si el nodo a eliminar es el top (no padre)
-                self.top = nodo.left                            # Cambiamos el "top" a la rama izq
-                nodo.left.father = None
-            elif nodo.father.right == nodo:                     # Si no asignamos la rama izq al padre según donde sea
-                nodo.father.right = nodo.left
-                nodo.left.father = nodo.father
-            elif nodo.father.left == nodo:
-                nodo.father.left = nodo.left
-                nodo.left.father = nodo.father
+        elif node.right is None:                                # When the node to delete has only one child (left)
+            if node.father is None:                             # If the node to delete is at top (no father)
+                self.top = node.left                            # Change tree.top to the left branch remaining
+                node.left.father = None
+            elif node.father.right == node:                     # Else, we assign the left branch to the parent, depending
+                node.father.right = node.left
+                node.left.father = node.father
+            elif node.father.left == node:
+                node.father.left = node.left
+                node.left.father = node.father
 
-            self.size -= 1                                      # Se resta uno al tamaño del arbol
+            self.size -= 1                                      # Tree size minus one
 
-            # Si el padre del nodo eliminado no es None: es decir no está en "top" seguimos subiendo
-            while nodo.father is not None:
-                # Hacemos un balanceo a partir del padre del nodo eliminado hacia arriba
-                nodo = self.nodereBalance(nodo.father)
+            # We rebalance down-top until the father of the node is None (root)
+            while node.father is not None:
+                # The balancing is made starting on the father of the node recently deleted
+                node = self.nodereBalance(node.father)
 
-        elif nodo.left is None:                                 # Si el nodo a eliminar tiene hijos pero solo por la dcha
-            if nodo.father is None:                             # Si el nodo a eliminar es el top (no padre)
-                self.top = nodo.right                           # Cambiamos el "top" a la rama dcha
-                nodo.right.father = None
-            elif nodo.father.right == nodo:                     # Si no asignamos la rama dcha al padre según donde sea
-                nodo.father.right = nodo.right
-                nodo.right.father = nodo.father
-            elif nodo.father.left == nodo:
-                nodo.father.left = nodo.right
-                nodo.right.father = nodo.father
+        elif node.left is None:                                 # When the node to delete has only one child (right)
+            if node.father is None:                             # If the node to delete is at top (no father)
+                self.top = node.right                           # Change tree.top to the left branch remaining
+                node.right.father = None
+            elif node.father.right == node:                     # Else, we assign the left branch to the parent, depending
+                node.father.right = node.right
+                node.right.father = node.father
+            elif node.father.left == node:
+                node.father.left = node.right
+                node.right.father = node.father
 
-            self.size -= 1  # Se resta uno al tamaño del arbol
+            self.size -= 1                                      # Tree size minus one
 
-            # Si el padre del nodo eliminado no es None: es decir no está en "top" seguimos subiendo
-            while nodo.father is not None:
-                # Hacemos un balanceo a partir del padre del nodo eliminado hacia arriba
-                nodo = self.nodereBalance(nodo.father)
+            # We rebalance down-top until the father of the node is None (root)
+            while node.father is not None:
+                # The balancing is made starting on the father of the node recently deleted
+                node = self.nodereBalance(node.father)
 
         else:
-            lowesthigh  = self.findlowesthigh(nodo)             # Buscamos el sustituto como el más bajo de los mayores
+            lowesthigh  = self.findlowesthigh(node)             # Look for the substitute as the precedent in the tree (the highest of the lower)
 
-            oldfather = lowesthigh.father                       # guardamos el nodo padre del sustituto para balancear
+            oldfather = lowesthigh.father                       # WE keep the father of the substitute to rebalance from there later
 
-            if lowesthigh.father.left == lowesthigh:            # Buscamos si el padre del sustituto es por la izq o dch.
-                lowesthigh.father.left = lowesthigh.right       # Y asignamos los hijos del sustituto según corresponda
-                if lowesthigh.right is not None:                # Pero con cuidado de que tenga hijos el sustituto (evita error)
-                    lowesthigh.right.father = lowesthigh.father # Solo izq, nunca los tendrá por la dch
+            if lowesthigh.father.left == lowesthigh:            # Depending if the parent of the substitute is right or left
+                lowesthigh.father.left = lowesthigh.right       # We assign the children of the substitute as needed
+                if lowesthigh.right is not None:                # If children is not None, we can assign them to the new father
+                    lowesthigh.right.father = lowesthigh.father # They will only be left children, therwise it would not be precedent
             else:
                 lowesthigh.father.right = lowesthigh.right
-                if lowesthigh.right is not None:                # Pero con cuidado de que tenga hijos el sustituto (evita error)
-                    lowesthigh.right.father = lowesthigh.father # Solo izq, nunca los tendrá por la dch
+                if lowesthigh.right is not None:                # If children is not None, we can assign them to the new father
+                    lowesthigh.right.father = lowesthigh.father # They will only be left children, therwise it would not be precedent
 
-            if nodo.father is None:                              # Si el nodo eliminado es el top
+            if node.father is None:                             # In case the deleted node is the top/root
                 self.top = lowesthigh
                 lowesthigh.father = None
             else:
-                # Comprobamos si el padre del nodo está en la derecha o en la izquierda
-                # Y le asignamos como nuevo hijo el sustituto
-                if nodo.father.right == nodo:
-                    nodo.father.right = lowesthigh
-                    lowesthigh.father = nodo.father
+                if node.father.right == node:                   # Depending if the parent of the substitute is right or left
+                    node.father.right = lowesthigh              # And assign the substitute as the new child
+                    lowesthigh.father = node.father
                 else:
-                    nodo.father.left = lowesthigh
-                    lowesthigh.father = nodo.father
+                    node.father.left = lowesthigh
+                    lowesthigh.father = node.father
 
-            # Asignamos los hijos del nodo al sustituto
-            lowesthigh.right = nodo.right
-            if nodo.right is not None: nodo.right.father = lowesthigh
-            lowesthigh.left = nodo.left
-            if nodo.left is not None: nodo.left.father = lowesthigh
+            # Assign the children of the deleted node to the substitute
+            lowesthigh.right = node.right
+            if node.right is not None: node.right.father = lowesthigh
+            lowesthigh.left = node.left
+            if node.left is not None: node.left.father = lowesthigh
 
-            self.size -= 1                                      # Se resta uno al tamaño del arbol
+            self.size -= 1                                      # Tree size minus one
 
-            # Si el padre del sustituto (antes de ser movido) no es None: es decir no está en "top" seguimos subiendo
+
+            # We rebalance down-top until the father of the node is None (root). We start at the father of the substitute
+            # prior to being removed
             while oldfather is not None:
-                # Hacemos un balanceo a partir del sustituto y subimos asignandole el padre del nodo resultante
+                # The balancing is made starting on the father of the node recently deleted
                 oldfather = self.nodereBalance(oldfather).father
 
 
         return 1
 
-    # Método principal para calcular el siguiente nodo dentro de un arbol (que será el más bajo de los mayores)
-    def findlowesthigh(self, nodo):
+    # ------------------------------------------------------------------------------------------------------------------
+    # Main method to find the following node within the tree(the lowest of the higher)
+    def findlowesthigh(self, node):
 
-        if nodo.right is not None:
-            return self._findlowesthigh(nodo.right)
+        if node.right is not None:
+            return self._findlowesthigh(node.right)
         else:
-            return nodo
+            return node
 
-    # Método recursivo para calcular el siguiente nodo dentro de un arbol (que será el más bajo de los mayores)
-    def _findlowesthigh(self, nodo):
+    # Recursive method to find the following node
+    def _findlowesthigh(self, node):
 
-        if nodo.left is not None:
-            return self._findlowesthigh(nodo.left)
+        if node.left is not None:
+            return self._findlowesthigh(node.left)
         else:
-            return nodo
+            return node
 
-    # Método de balanceo sin recursividad solo para un nodo determinado
-    # Se usará para buscar hacia arriba todos los nodos por si estuviesen desbalanceados
-    def nodereBalance(self, nodo=None):
+    # ------------------------------------------------------------------------------------------------------------------
+    # Method to rebalance (not recursive) for a given node
+    # It will be used to do a balancing down-top
+    def nodereBalance(self, node=None):
 
-        # Se compruba el balance de las ramas del nodo
-        nodebalance = self.balanceNum(nodo)
+        # We first check the balance of the branches right and left of the node
+        nodebalance = self.balanceNum(node)
 
-        if abs(nodebalance) >= 2:                       # Si el balance es mayor que dos
-            if nodebalance <= -2:                       # Si el balance es negativo (rama derecha más larga)
-                son = nodo.right
-                sonbalance = self.balanceNum(son)       # Comprobamos el balance del hijo
-                if sonbalance == -1:                    # Si el hijo tiene balance -1 rotamos a la izquierda
+        if abs(nodebalance) >= 2:                       # If absolute value of balance is equal or greater than two
+            if nodebalance <= -2:                       # If the balance is negative (right branch higher)
+                son = node.right
+                sonbalance = self.balanceNum(son)       # We check the balance of the right child
+                if sonbalance == -1:                    # If the balance is -1 we make a left rotation
                     self.rotate (son, "left")
-                    return son                          # Se devuelve el hijo para que se siga balanceando hacia arriba
+                    return son                          # We return the son so that it can continue balancing up to the top
 
-                elif sonbalance == 1:                   # Si el hijo tiene balance 1 rotamos doble: derecha, izquierda
-                    pivot = son.left                    # La rotación se hace considerando el "pivot" el hijo del hijo
+                elif sonbalance == 1:                   # If the balance is 1 we make a double rotation: right, left
+                    pivot = son.left                    # The rotation is made considering the son of the son as pivot
                     self.rotate (pivot, "right")
                     self.rotate (pivot, "left")
-                    return pivot                         # Se devuelve el pivot para que se siga balanceando hacia arriba
+                    return pivot                         # We return the pivot so that it can continue balancing up to the top
 
                 else:
-                    # Entonces cubre aquellos casos (raros) en los que ambos hijos tienen balance 0 pero una de las
-                    # ramas es más larga que la otra. Se balancea como si fuese -1 (aunque sea 0)
-                    # Se podría poner en el primer if, pero así queda más comprenisble el código
+                    # This case is a (rare)situation in which both sons hava a 0 balance, but nonetheless one of the
+                    # branches is longuer than the other. It is balanced as if it were -1 (though it is 0)
+                    # We could include it in the first if, but we put it here for easier understanding
                     self.rotate(son, "left")
                     return son
 
-            elif nodebalance >= 2:                      # Si el balance es negativo (rama derecha más larga)
-                son = nodo.left
-                sonbalance = self.balanceNum(son)       # Comprobamos el balance del hijo
-                if sonbalance == 1:                     # Si el hijo tiene balance 1 rotamos a la derecha
+            elif nodebalance >= 2:                      # If the balance is positive (left branch higher)
+                son = node.left
+                sonbalance = self.balanceNum(son)       # We check the balance of the left child
+                if sonbalance == 1:                     # If the balance is 1 we make a right rotation
                     self.rotate (son, "right")
-                    return son                         # Se devuelve True porque el arbol estará balanceado en esta rama
+                    return son                          # We return the son so that it can continue balancing up to the top
 
-                elif sonbalance == -1:                  # Si el hijo tiene balance -1 rotamos doble: izquierda, derecha
-                    pivot = son.right                   # La rotación se hace considerando el "pivot" el hijo del hijo
+                elif sonbalance == -1:                  # If the balance is -11 we make a double rotation: left, right
+                    pivot = son.right                   # The rotation is made considering the son of the son as pivot
                     self.rotate (pivot, "left")
                     self.rotate (pivot, "right")
-                    return pivot                         # Se devuelve True porque el arbol estará balanceado en esta rama
+                    return pivot                         # We return the pivot so that it can continue balancing up to the top
 
                 else:
-                    # Entonces cubre aquellos casos (raros) en los que ambos hijos tienen balance 0 pero una de las
-                    # ramas es más larga que la otra. Se balancea como si fuese +1 (aunque sea 0)
-                    # Se podría poner en el primer if, pero así queda más comprenisble el código
+                    # This case is a (rare)situation in which both sons hava a 0 balance, but nonetheless one of the
+                    # branches is longuer than the other. It is balanced as if it were +1 (though it is 0)
+                    # We could include it in the first if, but we put it here for easier understanding
                     self.rotate (son, "right")
                     return son
 
         else:
 
-            return nodo            # Si está balanceado devolvemos el propio nodo
+            return node                                 # If it is balanced, we return the node to kepp rebalancing up
 
-    # Método para rotar el arbol cuando no está balanceado
-    def rotate(self, nodo, rotation):
+    # ------------------------------------------------------------------------------------------------------------------
+    # Method to rotate the tree when needs rebalance
+    def rotate(self, node, rotation):
 
-        # Se necesita saber abuelo y padre del nodo a rotar
-        gfather = nodo.father.father
-        father = nodo.father
+        # We need to keep track of the father and gfather of the node to rotate
+        gfather = node.father.father
+        father = node.father
 
-        # Se asigna al nodo como nuevo padre el abuelo
-        nodo.father = gfather
+        # The node new father is now the grandfather
+        node.father = gfather
 
         if rotation == "left":
             if gfather is None:
-                self.top = nodo
+                self.top = node
             else:
-                # Se asigna al abuelo el nodo como hijo, por la derecha o izquierda según corresponda
+                # The gfather son's is now the node rotated, right or left as corresponds
                 if gfather.left == father:
-                    gfather.left = nodo
+                    gfather.left = node
                 else:
-                    gfather.right = nodo
+                    gfather.right = node
 
-            father.father = nodo            # El padre del padre es ahora el hijo (nodo)
-            father.right = nodo.left        # Los hijos por la dcha del padre son los hijos que eran del nodo por la izq
-            if nodo.left is not None:       # Los hijos del nodo se les asigna el padre del nodo como su nuevo padre
-                nodo.left.father = father
-            nodo.left = father              # El nodo tiene ahora por la izq a su padre como hijo
-
+            father.father = node            # The father of the father is now the son/node
+            father.right = node.left        # The child by the right of the father is now the former left child of the node
+            if node.left is not None:       # The children of the node change father (node) to the father of the node
+                node.left.father = father
+            node.left = father              # The left children of the node is now the former father
 
         elif rotation == "right":
             if gfather is None:
-                self.top = nodo
+                self.top = node
             else:
-                # Se asigna al abuelo el nodo como hijo, por la derecha o izquierda según corresponda
+                # The gfather son's is now the node rotated, right or left as corresponds
                 if gfather.left == father:
-                    gfather.left = nodo
+                    gfather.left = node
                 else:
-                    gfather.right = nodo
+                    gfather.right = node
 
-            father.father = nodo            # El padre del padre es ahora el hijo (nodo)
-            father.left = nodo.right        # Los hijos por la izq del padre son los hijos que eran del nodo por la dcha
-            if nodo.right is not None:      # Los hijos del nodo se les asigna el padre del nodo como su nuevo padre
-                nodo.right.father = father
-            nodo.right = father             # El nodo tiene ahora por la dcha a su padre como hijo
+            father.father = node            # The father of the father is now the son/node
+            father.left = node.right        # The child by the left of the father is now the former right child of the node
+            if node.right is not None:      # The children of the node change father (node) to the father of the node
+                node.right.father = father
+            node.right = father             # The right children of the node is now the former father
 
 
         else:
@@ -306,140 +308,152 @@ class AVLTree:
 
         return
 
-    # Método para calcular el balance de un nodo
-    def balanceNum(self, nodo=None):
+    # ------------------------------------------------------------------------------------------------------------------
+    # Method to calculate the balance between branches of a node
+    def balanceNum(self, node=None):
 
-        if nodo is None:
-            nodo = self.top
+        if node is None:
+            node = self.top
 
-        # Se devuelve la diferencia de niveles entre la rama izquierda y derecha del nodo
-        # Será positivo con la rama izquierda con más niveles y negativo si es lo contrario
-        return self._height(nodo.left) - self._height(nodo.right)
+        # It returns the height difference between the right and left branches of the node
+        # It will be positive if left branch has more levels, negative on the contrary (or 0 if equal)
+        return self._height(node.left) - self._height(node.right)
 
-    # Método para comprobar si un nodo concreto del arbol está balanceado en todos sus nodos
-    # Similar al balanceNum pero sólo devolviendo True si es menor o igual a 1 or False
-    def isBalanced(self, nodo=None):
+    # ------------------------------------------------------------------------------------------------------------------
+    # Method to check that a given node is balanced between branches
+    # Similar to balanceNum but returning Treu or False if balance is between -1 and 1
+    def isBalanced(self, node=None):
 
-        if nodo is None:
-            nodo = self.top
+        if node is None:
+            node = self.top
 
-        rightheight = self._height(nodo.right)
-        leftheight = self._height(nodo.left)
+        rightheight = self._height(node.right)
+        leftheight = self._height(node.left)
 
         if abs(leftheight - rightheight) <= 1:
             return True
         else:
             return False
 
-    # Método principal recursivo para comprobar que todos los nodos del arbol están balanceados
+    # ------------------------------------------------------------------------------------------------------------------
+    # Main method (node=top/root) to check that a node and all the nodes bellow are correctly balanced
     def isallBalanced(self):
 
         nodo = self.top
         return self._isallBalanced(nodo)
 
-    # Método recursivo a partir de un nodo para comprobar que todas las ramas y nodos están balanceados
-    def _isallBalanced(self, nodo):
+    # Recursive method to check that a given node and all nodes bellow are correctly balanced
+    def _isallBalanced(self, node):
 
         resultado = False
 
-        rightheight = self._height(nodo.right)
-        leftheight = self._height(nodo.left)
+        rightheight = self._height(node.right)
+        leftheight = self._height(node.left)
 
         if abs(leftheight - rightheight) <= 1:
             resultado = True
         else:
             resultado = False
 
-        if nodo.left is not None:
-            resultado = resultado and self._isallBalanced(nodo.left)
-        if nodo.right is not None:
-            resultado = resultado and self._isallBalanced(nodo.right)
+        if node.left is not None:
+            resultado = resultado and self._isallBalanced(node.left)
+        if node.right is not None:
+            resultado = resultado and self._isallBalanced(node.right)
 
         return resultado
 
-    # Metodo recursivo para calcular la profundidad
-    def depth(self, nodo):
+    # ------------------------------------------------------------------------------------------------------------------
+    # Recursive method to calculate the depth (levels to top) of a node
+    def depth(self, node):
 
-        if nodo.father is not None:
-            depth = self.depth(nodo.father)
+        if node.father is not None:
+            depth = self.depth(node.father)
             depth += 1
             return depth
         else:
             return 1
 
-    # Método principal para calcular la altura de un arbol
+    # ------------------------------------------------------------------------------------------------------------------
+    # Main method to calculate the height (levels to the deepest leaf bellow) of the tree (starting at top) 
     def height(self):
 
         treeheight = 0
-        puntero = self.top
-        treeheight += self._height(puntero)
+        pointer = self.top
+        treeheight += self._height(pointer)
         return treeheight
 
-    # Método recursivo a partir de un nodo para calcular la altura de las ramas y nodos por debajo
-    def _height(self, puntero):
+    # Main method to calculate the height (levels to the deepest leaf bellow) of a given node 
+    def _height(self, pointer):
 
-        if puntero is None:
+        if pointer is None:
             return 0
         else:
-            levelsleft = self._height(puntero.left)
-            levelsright = self._height(puntero.right)
+            levelsleft = self._height(pointer.left)
+            levelsright = self._height(pointer.right)
             if levelsleft <= levelsright:
                 return levelsright+1
             else:
                 return levelsleft+1
 
-    # Método principal para calcular el tamaño de un arbol. Debería coincidir con el atributo .size del arbol
+    # ------------------------------------------------------------------------------------------------------------------
+    # Main method to calculate the size of a tree (it should actually match the size attribute of the tree)
     def treesize(self):
 
-        puntero = self.top
+        pointer = self.top
         treesize=0
-        treesize += self._treesize(puntero)
+        treesize += self._treesize(pointer)
         return treesize
 
-    # Método recursivo para clacular el tamaño de un arbol a partir de un puntero
-    def _treesize(self, puntero):
+    # Recursive method to calculate the size of a tree bellow a given node
+    def _treesize(self, pointer):
 
-        if puntero is not None:
+        if pointer is not None:
             treesize = 1
-            treesize += self._treesize(puntero.left)
-            treesize += self._treesize(puntero.right)
+            treesize += self._treesize(pointer.left)
+            treesize += self._treesize(pointer.right)
             return treesize
         else:
             return 0
 
-    # Método principal de impresión del arbol
+    # ------------------------------------------------------------------------------------------------------------------
+    # Main method to print the tree from the top. Calls the recursive method
     def __str__(self):
 
-        impresion = ""
-        puntero = self.top
-        impresion += self.___str___(puntero, 0, "")
-        return impresion
+        printing = ""
+        pointer = self.top
+        printing += self.___str___(pointer, 0, "")
+        return printing
 
-    # Método recursivo de impresión del arbol a partir de un nodo.
-    # Se le envía el nivel para incluir tabuladores para mejor visualización
-    def ___str___(self, puntero, nivel, leftright):
+    # Recursive method to print the tree down.
+    # The level is sent to the method to include it in the printing, but also to include tabs to improve visualization
+    def ___str___(self, pointer, level, leftright):
 
-        if puntero is None:
+        if pointer is None:
             return ""
         else:
-            impresion =""
-            impresion += self.___str___(puntero.right, nivel + 1, "right")
+            printing =""
+            printing += self.___str___(pointer.right, level + 1, "right")
 
-            # Se incluye un campo aviso como comprobación si una rama no estuviese balanceada
-            if self.isBalanced(puntero) == False:
-                aviso = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            # It includes a field (watch) as a check that the tree is correctly balanced
+            # It increases the overload of the print. It is not necessary but helps check the class is working ok
+            if self.isBalanced(pointer) == False:
+                watch = "------------ WARNING ------------"
             else:
-                aviso = "ok"
+                watch = "ok"
 
+            # We use the level to print it on the screen, but also to tab the line as many times as the level (x2)
+            # We indicate visually if it is a right or left child with the \ and / signs
+            # We also include the height of each branch. It increases overload, but it is also for checking purposes
             if leftright == "left":
-                impresion += "\t"*2*(nivel) + str(nivel) + "\\" + str(puntero.value) + aviso + str(self._height(puntero.left)) + str(self._height(puntero.right)) + "\n"
+                printing += "\t" * 2 * (level) + str(level) + "\\" + str(pointer.value) + watch + str(self._height(pointer.left)) + str(self._height(pointer.right)) + "\n"
 
             elif leftright == "right":
-                impresion += "\t"*2*(nivel) + str(nivel) + "/" + str(puntero.value) + aviso + str(self._height(puntero.left)) + str(self._height(puntero.right)) + "\n"
+                printing += "\t" * 2 * (level) + str(level) + "/" + str(pointer.value) + watch + str(self._height(pointer.left)) + str(self._height(pointer.right)) + "\n"
 
             else:
-                impresion += "\t"*2*(nivel) + str(nivel) + str(puntero.value) + aviso + str(self._height(puntero.left)) + str(self._height(puntero.right)) + "\n"
+                printing += "\t" * 2 * (level) + str(level) + str(pointer.value) + watch + str(self._height(pointer.left)) + str(self._height(pointer.right)) + "\n"
 
-            impresion += self.___str___(puntero.left, nivel+1, "left")
-            return impresion
+            printing += self.___str___(pointer.left, level + 1, "left")
+
+            return printing
 
