@@ -28,11 +28,11 @@ print (lista)
 # --------------------------------------------------------------------------------
 # WBT Tree Creation
 # --------------------------------------------------------------------------------
-mytree = ubt.WBTree()
+mytree = ubt.UBTree()
 
 for i in range(len(lista)):
 
-    nodovalue = ubt.WBTNode(lista[i])
+    nodovalue = ubt.UBTNode(lista[i])
     mytree.insert(nodovalue)
 
 print ("---")

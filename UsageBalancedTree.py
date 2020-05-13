@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------------------------------------------------
 # Node Class with Value (in this case numeric) and the weight
 #-----------------------------------------------------------------------------------------------------------------------
-class WBTNode:
+class UBTNode:
 
     def __init__(self, value, weight=1, father=None, left=None, right=None):
 
@@ -14,7 +14,7 @@ class WBTNode:
 
     def copynode(self):
 
-        return WBTNode(self.value, self.weight, self.father, self.left, self.right)
+        return UBTNode(self.value, self.weight, self.father, self.left, self.right)
 
     def __str__(self):
 
@@ -32,7 +32,7 @@ class WBTNode:
 # Balancing the tree in every access would be resource consuming with little effect on the performance of the tree
 # For this reason it is more efficient to balance the tree with an specific method used periodically
 #-----------------------------------------------------------------------------------------------------------------------
-class WBTree:
+class UBTree:
 
     # todo: optimizar código de listtotree para que si el primero tiene poco peso mandarlo abajo
     # todo: delete ubt
@@ -320,7 +320,7 @@ class WBTree:
 
                 if improvement > pointer.weight*(depthprevious-depthpointer+1):
 
-                    newnode = WBTNode(pointer.value, pointer.weight)
+                    newnode = UBTNode(pointer.value, pointer.weight)
 
                     pointer.value = next.value
                     pointer.weight = next.weight
@@ -342,7 +342,7 @@ class WBTree:
 
                 if improvement > pointer.weight*(depthnext - depthpointer + 1):
 
-                    newnode = WBTNode(pointer.value, pointer.weight)
+                    newnode = UBTNode(pointer.value, pointer.weight)
 
                     pointer.value = previous.value
                     pointer.weight = previous.weight

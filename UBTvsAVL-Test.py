@@ -33,7 +33,7 @@ for i in range(n):
 # --------------------------------------------------------------------------------
 # AVL and WBT Tree Creation... with time performance check for AVL
 # --------------------------------------------------------------------------------
-mytree = ubt.WBTree()
+mytree = ubt.UBTree()
 mytreeAVL = avl.AVLTree()
 
 listanodos=[]
@@ -44,7 +44,7 @@ cProfile.run("testinsertAVL(listanodos, mytreeAVL)")
 
 for i in range(len(lista)):
 
-    nodovalue = ubt.WBTNode(lista[i])
+    nodovalue = ubt.UBTNode(lista[i])
     mytree.insert(nodovalue)
 
 # --------------------------------------------------------------------------------
