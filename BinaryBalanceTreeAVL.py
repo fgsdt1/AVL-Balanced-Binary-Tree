@@ -1,6 +1,6 @@
 
 #-------------
-# Clase del nodo con el código postal
+# Node for the AVL Tree. Value is the key
 #-------------
 class AVLNode:
 
