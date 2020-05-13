@@ -257,47 +257,6 @@ class ABBCodigoPostal:
 
             return nodo            # Si está balanceado devolvemos el propio nodo
 
-
-
-    # BORRAR NO NECESARIO------------------------------------------------------------------------------------------------------------------
-    # Calculates the expected length of search (ELS) to all the nodes depending on the weight. The lower the better.
-    # ELS = depth(node1)*probability(node1) + depth(node2)*probability(node2) + .... + depth (noden)*probability(noden)
-    # It is obtained by adding probability of a node times the depth of the node for all the nodes.
-    # The probabililty is the weight of the node / weight of the tree (the node and its branches)
-    def branchels(self, node=None):
-
-        if node is None: node = self.top
-        depth = 1
-
-        els = (1/self.treesize()) * depth
-
-        els += self._branchels(node.right, depth, self.treesize())
-        els += self._branchels(node.left, depth, self.treesize())
-
-        return els
-
-    # BORRAR NO NECESARIO------------------------------------------------------------------------------------------------------------------
-    # Recursive call for the ELS calculation
-    def _branchels(self, node, depth, treesize):
-
-        depth += 1
-
-        if node is not None:
-
-            els = (1 / treesize) * depth
-
-            els += self._branchels(node.right, depth, treesize)
-            els += self._branchels(node.left, depth, treesize)
-
-            return els
-
-        else:
-
-            return 0
-
-
-
-
     # Método para rotar el arbol cuando no está balanceado
     def rotate(self, nodo, rotation):
 
@@ -483,7 +442,4 @@ class ABBCodigoPostal:
 
             impresion += self.___str___(puntero.left, nivel+1, "left")
             return impresion
-
-
-
 
