@@ -25,7 +25,7 @@ def testinsertAVL(listanodos, tree):
 lista = []
 
 n = 10000
-rd.seed(1234)
+rd.seed(14)
 for i in range(n):
     code = rd.randint(0,2000)
     lista.append(code)
