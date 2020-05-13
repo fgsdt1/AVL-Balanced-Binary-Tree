@@ -14,9 +14,9 @@ class AVLNode:
     def __str__(self):
 
         if self.father is not None:
-            imprimir = "nodo:" + str (self.value) + ", father:" + str(self.father.value)
+            imprimir = "node:" + str (self.value) + ", father:" + str(self.father.value)
         else:
-            imprimir = "nodo:" + str(self.value) + "- Es el top"
+            imprimir = "node:" + str(self.value) + "- It is root"
 
         return imprimir
 
@@ -39,24 +39,24 @@ class AVLTree:
             self.top = nodocp
             self.size += 1
         else:
-            puntero = self.top      # Recorremos el arbol con "puntero" para localizar donde insertar. Empezando en top.
+            pointer = self.top      # Recorremos el arbol con "puntero" para localizar donde insertar. Empezando en top.
             father = None
 
             # Llamada a insertar recursivo
-            self._insert(father, puntero, nodocp)
+            self._insert(father, pointer, nodocp)
 
     # Método de inserción recursiva. Busca el lugar donde encaja el "puntero", entonces inserta y balancea
-    def _insert(self, father, puntero, nodocp):
+    def _insert(self, father, pointer, nodocp):
         # Parametros:
         #   fahter: Para identificar el último nodo por el que hemos pasado antes de encontrar el Null donde insertar
-        #   puntero: El nodo del arbol a donde estamos apuntando en ese momento
+        #   pointer: El nodo del arbol a donde estamos apuntando en ese momento
         #   nodocp: El nodo que queremos insertar
 
-        if puntero is None:             # Si el puntero es None, aquí es donde se debe insertar
+        if pointer is None:             # Si el pointer es None, aquí es donde se debe insertar
             nodocp.father = father      # El padre del nuevo elemento es el padre
             if father.value > nodocp.value:
                 father.left = nodocp
-            else:                       # Si es por la derecha, el hijo derecho del padre es el puntero
+            else:                       # Si es por la derecha, el hijo derecho del padre es el pointer
                 father.right = nodocp
             self.size += 1              # El arbol aumenta en uno el tamaño
 
@@ -65,10 +65,10 @@ class AVLTree:
                 # Hacemos un balanceo a partir del abuelo del nodo hacia arriba
                 father = self.nodereBalance(father.father)
 
-        elif puntero.value > nodocp.value:                # Seguimos buscando donde insertar recursivamente izquierda
-            self._insert(puntero, puntero.left, nodocp)
-        elif puntero.value < nodocp.value:                # Seguimos buscando donde insertar recursivamente derecha
-            self._insert(puntero, puntero.right, nodocp)
+        elif pointer.value > nodocp.value:                # Seguimos buscando donde insertar recursivamente izquierda
+            self._insert(pointer, pointer.left, nodocp)
+        elif pointer.value < nodocp.value:                # Seguimos buscando donde insertar recursivamente derecha
+            self._insert(pointer, pointer.right, nodocp)
         else:
             return
 

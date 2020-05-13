@@ -139,11 +139,8 @@ class WBTree:
                 node.father.left = node.right
                 node.right.father = node.father
             self.size -= 1
+
         else:
-
-
-# Pendiente comprobar____________________
-
             previous = self.findprevious(node.left)
             next = self.findnext(node.right)
 
@@ -168,7 +165,6 @@ class WBTree:
 
                 self.delete(previous)
 
-# Pendiente comprobar____________________
 
         return 1
 

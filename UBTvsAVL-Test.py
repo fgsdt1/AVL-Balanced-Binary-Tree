@@ -56,9 +56,13 @@ print ("tree ELS:", mytree.branchels(mytree.top))
 print ("left ELS", mytree.branchels(mytree.top.left))
 print ("right ELS:", mytree.branchels(mytree.top.right))
 
-# We increase the weight of the nodes by randomly access the tree to search for nodes several times
-for i in range(10000):
-    mytree.findnode(rd.choice(lista))
+# We choose a number of nodes (n). Those will be accessed a random number of times.
+# This will increase the weight of those nodes
+n = 200  # 10% of the nodes
+for i in range(200):
+    b = rd.choice(lista)
+    for i in range(rd.randint(10,100)):
+        mytree.findnode(b)
 
 # and we rebalance the tree with the new weights and print the new ELS
 mytree.rebalance()
@@ -80,11 +84,11 @@ for i in range(len(listatree)):
     # elements should be evaluated in regards with the weight of each node (more entries for the "heaviest" nodes)
     # For that, we process the initial list data and generate as many requests as random(0,5 - 1,5) times the weight
     # The next two sentences could do the trick when preparing the data set:
-    #    numqueries = 1-rd.randint(-80, 80)/100
-    #    for i in range(int(5*nodo.weight*numqueries)): listatest.append(nodo.value)
+    numqueries = 1-rd.randint(-80, 80)/100
+    for i in range(int(5*nodo.weight*numqueries)): listatest.append(nodo.value)
     #
     # Alternatively we have done a even distribution of loads, which should benefit AVL performance vs WBT
-    for i in range(40): listatest.append(nodo.value)
+    # for i in range(40): listatest.append(nodo.value)
 
 rd.shuffle(listatest)
 
@@ -104,7 +108,7 @@ for i in range(len(listatest)):
     depavl += depabbtmp
 
 print ("Cumulative heights AVL", depavl)
-print ("Cumulative heights WBT", dep)
+print ("Cumulative heights UBT", dep)
 
 
 # Final bulk find execition for performance test

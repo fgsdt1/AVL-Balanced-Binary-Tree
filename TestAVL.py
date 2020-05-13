@@ -3,69 +3,61 @@ import BinaryBalanceTreeAVL as avl
 import random as rd
 import time
 
+print ("Insert Test --------------------")
 #--------------------------------------------------------------------------------
-# Generación de lista de nodos aleatorios para crear arbol
+# Preparing a list of random nodes to create the tree
 #--------------------------------------------------------------------------------
 lista = []
 n = 1200
 rd.seed(0)
 for i in range(n):
-    codigo = rd.randint(0,52900)
-    lista.append(codigo)
+    value = rd.randint(0,52900)
+    lista.append(value)
 
 #--------------------------------------------------------------------------------
-# Creación del arbol con control tiempo
+# Tree creation with time control
 #--------------------------------------------------------------------------------
 starttime = time.time()
-miarbol = avl.AVLTree()
+mytree = avl.AVLTree()
 
 for i in range(len(lista)):
     nodocp = avl.AVLNode(lista[i])
-    miarbol.insert(nodocp)
+    mytree.insert(nodocp)
 
-print("this is the last-------------------------")
-print(miarbol.height())
-print(miarbol._height(miarbol.top.left))
-print(miarbol._height(miarbol.top.right))
-print(miarbol.size, miarbol.treesize())
+print("height", mytree.height())
+print("size", mytree.size)
+print ("balanceado total:", mytree.isallBalanced())
 endtime = time.time()
 abb1 = endtime-starttime
 
 print ("execution time abb1 =", abb1)
 
-
 #--------------------------------------------------------------------------------
-#Test de borrado
+# Deletion test
 #--------------------------------------------------------------------------------
 
-# Editar lista de elementos a borrar
-borrar = []
-borrar.append(28760)
+print ("Deletion Test --------------------")
+
+# We create a list of elements to delete chosen randomly. Many might not actually exist in the tree
+todelete = []
+todelete.append(28760)
 nb = 29550
 for i in range(nb):
     rand = rd.randint(0, 52000)
-    #if mytree.findnode(rand) is not None:
-    borrar.append(rand)
+    todelete.append(rand)
 
-
-print ("Lista creada --------------------")
-print(borrar)
-print ("size:", miarbol.size, "-", miarbol.treesize())
-print ("balanceado total:", miarbol.isallBalanced())
-noexiste=0
-borrados=0
-for i in range(len(borrar)):
-    nodo = miarbol.findnode(borrar[i])
+notexisting=0
+deleted=0
+for i in range(len(todelete)):
+    nodo = mytree.findnode(todelete[i])
     if nodo is not None:
-        print ("borrar:-----------------------------------------------------", nodo, "--------------------------------------------------")
-        print("balanceado total:", miarbol.isallBalanced())
-        miarbol.delete(nodo)
-        borrados +=1
+        mytree.delete(nodo)
+        deleted +=1
     else:
-        noexiste+=1
-print ("no existieron:", noexiste)
-print ("borrados:", borrados)
-print ("size:", miarbol.size, "-", miarbol.treesize())
-print ("balanceado total:", miarbol.isallBalanced())
+        notexisting+=1
 
-print (miarbol)
+print ("deleted:", deleted)
+print ("remaining size:", mytree.size)
+print ("balanceado total:", mytree.isallBalanced())
+
+print (mytree)
