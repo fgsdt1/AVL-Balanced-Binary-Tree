@@ -30,9 +30,6 @@ class UBTNode:
 #-----------------------------------------------------------------------------------------------------------------------
 class UBTree:
 
-    # todo: optimizar código de listtotree para que si el primero tiene poco peso mandarlo abajo
-    # todo: delete ubt
-
     def __init__(self):
 
         self.top = None
@@ -40,7 +37,7 @@ class UBTree:
 
     # ------------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
-    # Metodos para insertar, borrar y encontrar un nodo en el arbol
+    # Methods to insert, delete and find nodes in the tree
     # ------------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -166,7 +163,7 @@ class UBTree:
 
     # ------------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
-    # Metodos para calcular el Expected Legth of Search - ELS
+    # Methods to calculate the Expected Legth of Search - ELS
     # ------------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
 
@@ -180,7 +177,8 @@ class UBTree:
         if node is None: node = self.top
         depth = 1
 
-        branchweight = self.branchweight(node)["weight"]
+        #branchweight = self.branchweight(node)["weight"]
+        branchweight = self._treeweight(node)
         els = (node.weight/branchweight) * depth
 
         els += self._branchels(node.right, depth, branchweight)
@@ -207,17 +205,23 @@ class UBTree:
 
     # ------------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
-    # Metodos de rebalanceo del arbol treetolist and listtotree
+    # Methods to rebalance and adjust the tree (treetolist and listtotree)
     # ------------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
 
     # ------------------------------------------------------------------------------------------------------------------
     # Rebalance the tree
+    #       - adjust, default True, makes fine adjustments to slightly improve the ELS of the tree
     def rebalance(self, adjust=True):
 
+        # We convert the tree in an ordered list of nodes
         treelist = self.treetolist()
-        self.listtotree(treelist)
 
+        # we transform back the list into a tree considering the weight of the nodes
+        self.top = self.listtotree(treelist)
+        self.top.father = None
+
+        # If wanted it makes fine adjustments to the balancing of the nodes
         if adjust:
             self.nodeadjust(self.top)
 
@@ -239,40 +243,29 @@ class UBTree:
             self._treetolist(nodo.right,treelist)
 
     # ------------------------------------------------------------------------------------------------------------------
-    # Main method. Create back the tree, optimal, from the list
+    # Recursive method. Create back the tree, optimal weight balance, from the list
     def listtotree(self, treelist):
 
-        frequency = 0
-        treeweight = self.treeweight()
-
-        for i in range(len(treelist)):
-            frequency += treelist[i].weight/treeweight
-            if frequency >= 0.50:
-                self.top = treelist[i]
-                self.top.father = None
-                self.top.left = self._listtotree(treelist[:i])
-                if self.top.left is not None: self.top.left.father = self.top
-                self.top.right = self._listtotree(treelist[i+1:])
-                if self.top.right is not None: self.top.right.father = self.top
-                break
-
-    # ------------------------------------------------------------------------------------------------------------------
-    # Recursive method. Create back the tree, optimal, from the list
-    def _listtotree(self, treelist):
-
+        # We are going to prepare a "frequency table" of the node values based on their weight
         frequency = 0
         branchweight = 0
         node = None
+
+        # The weight of the branch is the addition of all the weights
         for i in range(len(treelist)): branchweight += treelist[i].weight
 
         for i in range(len(treelist)):
+
+            # The frequency of a node will be the weight of the node / the total weight of the elements in the tree
             frequency += treelist[i].weight / branchweight
+
+            # When the cumulative frequency >= .50 (half the weight) we split the tree in two
             if frequency >= 0.50:
 
-                treelist[i].left = self._listtotree(treelist[:i])
+                treelist[i].left = self.listtotree(treelist[:i])               # recursive for the left remaining nodes
                 if treelist[i].left is not None: treelist[i].left.father = treelist[i]
 
-                treelist[i].right = self._listtotree(treelist[i + 1:])
+                treelist[i].right = self.listtotree(treelist[i + 1:])          # recursive for right remaining nodes
                 if treelist[i].right is not None: treelist[i].right.father = treelist[i]
 
                 node = treelist[i]
@@ -281,19 +274,21 @@ class UBTree:
         return node
 
     # ------------------------------------------------------------------------------------------------------------------
-    # recursive method to adjust nodes if possible, comparing each node with the previous or next one
-    # to see if switching places improves the ELS.
+    # Recursive method to adjust nodes if possible, comparing each node with the precedent (previous) or following (next)
+    # ones to see if switching places improves the total ELS.
     def nodeadjust(self, pointer):
 
         if pointer is not None and (pointer.left is not None or pointer.right is not None):
-            # We look for the previous and next node to see if it is worth to swap
 
+            # Calculate the depth of the node (pointer) and the weight of the tree for later calculations
             depthpointer = self.depth(pointer)
             treeweight = self.treeweight()
 
+            # We look for the previous and next node to see if it is worth to swap
             if pointer.left is not None:
                 previous = self.findprevious(pointer.left)
                 depthprevious = self.depth(previous)
+                # The relative weight of the previous is the weight of the node / total weight of the tree times its depth
                 elsprevious = (previous.weight / treeweight) * depthprevious
             else:
                 previous = None
@@ -303,24 +298,32 @@ class UBTree:
             if pointer.right is not None:
                 next = self.findnext(pointer.right)
                 depthnext = self.depth(next)
+                # The relative weight of the next is the weight of the node / total weight of the tree times its depth
                 elsnext = (next.weight / treeweight) * depthnext
             else:
                 next = None
                 depthnext = depthpointer
                 elsnext = 0
 
+            # We choose to work with the node (previous or next) that can provide better improvement (higher ELS)
             if elsnext >= elsprevious:
-                # The improvement is the weight of the node to "upgrade" times the levels upgraded
-                # plus the addition of the weights of the right branch, that will go up one level
+                # The improvement is the weight of the node to "upgrade" (next), times the number of levels upgraded
+                # plus the addition of the weights of the right branch, that will go up one level if next is removed
                 improvement = next.weight*(depthnext-depthpointer) + self._treeweight(next.right)
 
+                # If the possible improvement is greater than the pointer relative weight increase when downgraded...
+                # calculated as the weight of the pointer times the difference of depths with its new position, which
+                # would be that of a son of the previous
                 if improvement > pointer.weight*(depthprevious-depthpointer+1):
 
+                    # Create a new node with the pointer value/weight that will be placed as right son of previous
                     newnode = UBTNode(pointer.value, pointer.weight)
 
+                    # Assign to the pointer node the value/weight of the next
                     pointer.value = next.value
                     pointer.weight = next.weight
 
+                    # Place the new node (pointer values) under the previous node
                     if previous is not None:
                         previous.right = newnode
                         previous.right.father = previous
@@ -328,21 +331,28 @@ class UBTree:
                         pointer.left = newnode
                         pointer.left.father = pointer
 
+                    # delete the next node, placed now where the pointer used to be
                     self.delete(next)
 
 
             elif elsprevious > elsnext:
-                # The improvement is the weight of the node to "upgrade" times the levels upgraded
-                # plus the addition of the weights of the left branch, that will go up one level
+                # The improvement is the weight of the node to "upgrade" (previous), times the number of levels upgraded
+                # plus the addition of the weights of the left branch, that will go up one level if previous is removed
                 improvement = previous.weight*(depthprevious-depthpointer) + self._treeweight(previous.left)
 
+                # If the possible improvement is greater than the pointer relative weight increase when downgraded...
+                # calculated as the weight of the pointer times the difference of depths with its new position, which
+                # would be that of a son of the next
                 if improvement > pointer.weight*(depthnext - depthpointer + 1):
 
+                    # Create a new node with the pointer value/weight that will be placed as left son of next
                     newnode = UBTNode(pointer.value, pointer.weight)
 
+                    # Assign to the pointer node the value/weight of the previous
                     pointer.value = previous.value
                     pointer.weight = previous.weight
 
+                    # Place the new node (pointer values) under the next node
                     if next is not None:
                         next.left = newnode
                         next.left.father = next
@@ -350,12 +360,14 @@ class UBTree:
                         pointer.right = newnode
                         pointer.right.father = pointer
 
+                    # delete the previous node, placed now where the pointer used to be
                     self.delete(previous)
 
             self.nodeadjust(pointer.left)
             self.nodeadjust(pointer.right)
 
-    # Método recursivo para calcular el siguiente nodo dentro de un arbol (que será el más bajo de los mayores)
+    # ------------------------------------------------------------------------------------------------------------------
+    # Recursive method to find the next (following) node of a given node within a tree
     def findnext(self, nodo):
 
         if nodo.left is not None:
@@ -363,7 +375,7 @@ class UBTree:
         else:
             return nodo
 
-    # Método recursivo para calcular el nodo anterior dentro de un arbol (que será el más alto de los menores)
+    # Recursive method to find the previous (precedent) node of a given node within a tree
     def findprevious(self, nodo):
 
         if nodo.right is not None:
@@ -373,12 +385,12 @@ class UBTree:
 
     # ------------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
-    # Cáluclos de profundidad (depth) de un nodo y altura (height) del arbol o un nodo
+    # Depth calculation for a node and Height calculation for a node or the whole tree
     # ------------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
 
     # ------------------------------------------------------------------------------------------------------------------
-    # Metodo recursivo para calcular la profundidad
+    # Recursive method to calculate the depth (levels up to the top) from a node
     def depth(self, nodo):
 
         if nodo.father is not None:
@@ -389,14 +401,14 @@ class UBTree:
             return 1
 
     # ------------------------------------------------------------------------------------------------------------------
-    # Método principal para calcular la altura de un arbol
+    # Main method to calculate the height of the tree. Calls the recursive method
     def height(self):
 
         treeheight = self._height(self.top)
         return treeheight
 
     # ------------------------------------------------------------------------------------------------------------------
-    # Método recursivo a partir de un nodo para calcular la altura de las ramas y nodos por debajo
+    # Recursive method to calcuulate the height of a given node
     def _height(self, pointer):
 
         if pointer is None:
@@ -411,12 +423,12 @@ class UBTree:
 
     # ------------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
-    # Cáluclos de tamaño (treesiza) y peso (treeweight) del arbol
+    # Calculations for size (treesiza) and weight(treeweight) of the tree
     # ------------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
 
     # ------------------------------------------------------------------------------------------------------------------
-    # Método principal para calcular el tamaño de un arbol. Debería coincidir con el atributo .size del arbol
+    # Main method to calculate the size of the tree. It calls the recursive method. It should match the .size attribute
     def treesize(self):
 
         pointer = self.top
@@ -425,7 +437,7 @@ class UBTree:
         return treesize
 
     # ------------------------------------------------------------------------------------------------------------------
-    # Método recursivo para clacular el tamaño de un arbol a partir de un puntero
+    # Recursive method to calculate the size of the tree (from a given node)
     def _treesize(self, pointer):
 
         if pointer is not None:
@@ -437,14 +449,14 @@ class UBTree:
             return 0
 
     # ------------------------------------------------------------------------------------------------------------------
-    # Método principal para calcular el peso de un arbol.
+    # Main method to calculate the total weight of the tree. It calls the recursive method.
     def treeweight(self):
 
         treeweight = self._treeweight(self.top)
         return treeweight
 
     # ------------------------------------------------------------------------------------------------------------------
-    # Método recursivo para clacular el tamaño de un arbol a partir de un puntero
+    # Recursive method to calculate the total weight of the tree from a given point down
     def _treeweight(self, pointer):
 
         if pointer is not None:
@@ -456,43 +468,13 @@ class UBTree:
             return 0
 
     # ------------------------------------------------------------------------------------------------------------------
-    # Calculates the total weight of a node and all its branches together with the number of nodes (Size) and height
-    # Provides more information than treeweight and treesize but it is more complex / resource consuming
-    def branchweight(self, node):
-
-        branch = {}
-
-        if node is not None:
-
-            branch["weight"] = node.weight
-            branch["size"] = 1
-            branch["height"] = 1
-
-            branchleft = self.branchweight(node.left)
-            branchright = self.branchweight(node.right)
-            branch["weight"] += (branchleft["weight"] + branchright["weight"])
-            branch["size"] += (branchleft["size"] + branchright["size"])
-
-            if branchleft["height"] >= branchright["height"]:
-                branch["height"]+=branchleft["height"]
-            else:
-                branch["height"]+=branchright["height"]
-
-        else:
-            branch["weight"] = 0
-            branch["size"] = 0
-            branch["height"] = 0
-
-        return branch
-
     # ------------------------------------------------------------------------------------------------------------------
-    # ------------------------------------------------------------------------------------------------------------------
-    # Métodos de impresión
+    # Printing methods
     # ------------------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
 
     # ------------------------------------------------------------------------------------------------------------------
-    # Método principal de impresión del arbol
+    # Main printing method for the tree
     def __str__(self):
 
         impresion = ""
@@ -501,8 +483,8 @@ class UBTree:
         return impresion
 
     # ------------------------------------------------------------------------------------------------------------------
-    # Método recursivo de impresión del arbol a partir de un nodo.
-    # Se le envía el nivel para incluir tabuladores para mejor visualización
+    # Recursive method to print the tree down.
+    # The level is sent to the method to include it in the printing, but also to include tabs to improve visualization
     def ___str___(self, puntero, nivel, leftright):
 
         if puntero is None:
@@ -511,6 +493,9 @@ class UBTree:
             impresion =""
             impresion += self.___str___(puntero.right, nivel + 1, "right")
 
+            # We use the level to print it on the screen, but also to tab the line as many times as the level (x2)
+            # We indicate visually if it is a right or left child with the \ and / signs
+            # We also include the height of each branch. It increases overload, but it is also for checking purposes
             if leftright == "left":
                 impresion += "\t"*2*(nivel) + str(nivel) + "\\" + str(puntero.value) + "-" + str(puntero.weight) + "\n"
 
